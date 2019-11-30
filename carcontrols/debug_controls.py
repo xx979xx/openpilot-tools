@@ -43,7 +43,7 @@ def steer_thread():
     # the other.
     actuators = car.CarControl.Actuators.new_message()
 
-    axis_3 = clip(-joystick.testJoystick.axes[3] * 1.05, -1., 1.)          # -1 to 1
+    axis_3 = clip(-joystick.testJoystick.axes[0] * 1.05, -1., 1.)          # -1 to 1
     actuators.steer = axis_3
     actuators.steerAngle = axis_3 * 43.   # deg
     axis_1 = clip(-joystick.testJoystick.axes[1] * 1.05, -1., 1.)          # -1 to 1
@@ -57,7 +57,7 @@ def steer_thread():
 
     button_1_last = button_1
 
-    #print "enable", enabled, "steer", actuators.steer, "accel", actuators.gas - actuators.brake
+    #print("enable", enabled, "steer", actuators.steer, "accel", actuators.gas - actuators.brake)
 
     hud_alert = 0
     audible_alert = 0
