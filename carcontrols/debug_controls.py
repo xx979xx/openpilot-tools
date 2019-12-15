@@ -46,7 +46,7 @@ def steer_thread():
     axis_3 = clip(-joystick.testJoystick.axes[2] * 1.05, -1., 1.)          # -1 to 1
     actuators.steer = axis_3
     actuators.steerAngle = axis_3 * 360.   # deg
-    axis_1 = clip(-joystick.testJoystick.axes[1] * 1.05, -1., 1.)          # -1 to 1
+    axis_1 = clip(-joystick.testJoystick.axes[3] * 1.05, -1., 1.)          # -1 to 1
     actuators.gas = max(axis_1, 0.)
     actuators.brake = max(-axis_1, 0.)
 
