@@ -10,6 +10,16 @@
 
 #include "Unlogger.hpp"
 
+#include <stdint.h>
+#include <time.h>
+
+static inline uint64_t nanos_since_boot() {
+  struct timespec t;
+  clock_gettime(CLOCK_BOOTTIME, &t);
+  return t.tv_sec * 1000000000ULL + t.tv_nsec;
+}
+
+
 Unlogger::Unlogger(Events *events_, QReadWriteLock* events_lock_, QMap<int, FrameReader*> *frs_, int seek) 
   : events(events_), events_lock(events_lock_), frs(frs_) {
   ctx = Context::create();
@@ -20,8 +30,16 @@ Unlogger::Unlogger(Events *events_, QReadWriteLock* events_lock_, QMap<int, Fram
   QStringList block = QString(getenv("BLOCK")).split(",");
   qDebug() << "blocklist" << block;
 
+  QStringList allow = QString(getenv("ALLOW")).split(",");
+  qDebug() << "allowlist" << allow;
+
   for (const auto& it : service_list) {
     auto name = it.first.as<std::string>();
+
+    if (allow[0].size() > 0 && !allow.contains(name.c_str())) {
+      qDebug() << "not allowing" << name.c_str();
+      continue;
+    }
 
     if (block.contains(name.c_str())) {
       qDebug() << "blocking" << name.c_str();
@@ -123,6 +141,9 @@ void Unlogger::process() {
 
         capnp::MallocMessageBuilder msg;
         msg.setRoot(e);
+
+        auto ee = msg.getRoot<cereal::Event>();
+        ee.setLogMonoTime(nanos_since_boot());
 
         if (e.which() == cereal::Event::FRAME) {
           auto fr = msg.getRoot<cereal::Event>().getFrame();
